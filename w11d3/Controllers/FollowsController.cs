@@ -21,13 +21,13 @@ namespace w11d3.Controllers
         }
 
         [HttpPost("{id}")]
-        public async Task<ActionResult<Follow>> Create(string id)
+        public async Task<ActionResult<FollowVM>> Create(string id)
         {
             try
             {
                 Account userInfo = await HttpContext.GetUserInfoAsync<Account>();
                 Follow data = new Follow() { Follower = userInfo.Id, Following = id };
-                Follow created = _serv.Create(data);
+                FollowVM created = _serv.Create(data);
                 return Ok(created);
             }
             catch(Exception e)
@@ -37,12 +37,12 @@ namespace w11d3.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Follow>> Remove(int id)
+        public async Task<ActionResult<FollowVM>> Remove(int id)
         {
             try
             {
                 Account userInfo = await HttpContext.GetUserInfoAsync<Account>();
-                Follow removed = _serv.Remove(id, userInfo.Id);
+                FollowVM removed = _serv.Remove(id, userInfo.Id);
                 return Ok(removed);
             }
             catch(Exception e)

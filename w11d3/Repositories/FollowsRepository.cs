@@ -26,15 +26,27 @@ namespace w11d3.Repositories
             return _db.Query<Follow>(sql, new { id }).FirstOrDefault();
         }
 
-        internal Follow GetByBoth(string follower, string following)
+        internal FollowVM GetByBoth(string follower, string following)
         {
             string sql = @"
             SELECT
-            *
+            id
             FROM follows
             WHERE follower = @follower AND following = @following;
             ";
-            return _db.Query<Follow>(sql, new { follower, following }).FirstOrDefault();
+
+            int id = _db.ExecuteScalar<int>(sql, new { follower, following });
+
+            sql = @"
+            SELECT 
+                acc.*,
+                fol.id AS followId
+            FROM follows fol
+            JOIN accounts acc ON fol.following = acc.id
+            WHERE fol.id = @id;
+            ";
+
+            return _db.Query<FollowVM>(sql, new { id }).FirstOrDefault();
         }
         
         internal List<FollowVM> GetByFollower(string follower)
@@ -63,7 +75,7 @@ namespace w11d3.Repositories
             return _db.Query<FollowVM>(sql, new { following }).ToList();
         }
 
-        internal Follow Create(Follow data)
+        internal FollowVM Create(Follow data)
         {
             string sql = @"
             INSERT
@@ -73,19 +85,41 @@ namespace w11d3.Repositories
             (@Follower, @Following);
             SELECT LAST_INSERT_ID();
             ";
-            data.Id = _db.ExecuteScalar<int>(sql, data);
-            return data;
+            int id = _db.ExecuteScalar<int>(sql, data);
+
+            sql = @"
+            SELECT 
+                acc.*,
+                fol.id AS followId
+            FROM follows fol
+            JOIN accounts acc ON fol.following = acc.id
+            WHERE fol.id = @id;
+            ";
+            return _db.Query<FollowVM>(sql, new { id }).FirstOrDefault();
         }
 
-        internal void Remove(int id)
+        internal FollowVM Remove(int id)
         {
             string sql = @"
+            SELECT 
+                acc.*,
+                fol.id AS followId
+            FROM follows fol
+            JOIN accounts acc ON fol.following = acc.id
+            WHERE fol.id = @id;
+            ";
+
+            FollowVM removed = _db.Query<FollowVM>(sql, new { id }).FirstOrDefault();
+
+            sql = @"
             DELETE
             FROM follows
             WHERE id = @id
             LIMIT 1;
             ";
             _db.Execute(sql, new { id });
+
+            return removed;
         }
     }
 }

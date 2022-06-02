@@ -16,3 +16,16 @@ CREATE TABLE IF NOT EXISTS follows(
     FOREIGN KEY (follower) REFERENCES accounts(id) ON DELETE CASCADE,
     FOREIGN KEY (following) REFERENCES accounts(id) ON DELETE CASCADE
 ) DEFAULT CHARSET UTF8;
+
+INSERT
+INTO follows
+(follower, following)
+VALUES
+("62755286701a57ffa8c287de", "627552a52ac9b0c117be1a2a");
+
+SELECT 
+acc.*,
+fol.id AS followId
+FROM follows fol
+JOIN accounts acc ON fol.following = acc.id
+WHERE fol.id = 5;

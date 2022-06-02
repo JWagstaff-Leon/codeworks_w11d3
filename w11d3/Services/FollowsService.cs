@@ -34,9 +34,9 @@ namespace w11d3.Services
             return _repo.GetByFollowing(following);
         }
 
-        internal Follow Create(Follow data)
+        internal FollowVM Create(Follow data)
         {
-            Follow found = _repo.GetByBoth(data.Follower, data.Following);
+            FollowVM found = _repo.GetByBoth(data.Follower, data.Following);
             if(found != null)
             {
                 return found;
@@ -44,15 +44,14 @@ namespace w11d3.Services
             return _repo.Create(data);
         }
 
-        internal Follow Remove(int id, string userId)
+        internal FollowVM Remove(int id, string userId)
         {
             Follow removed = GetById(id);
             if(removed.Follower != userId)
             {
                 throw new Exception("You do not have permission to delete this follow.");
             }
-            _repo.Remove(id);
-            return removed;
+            return _repo.Remove(id);
         }
     }
 }
